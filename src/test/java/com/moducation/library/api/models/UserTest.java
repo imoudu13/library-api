@@ -10,7 +10,7 @@ public class UserTest {
 
     @BeforeEach
     void setup() {
-        user = new User(1L, "username", "password", "firstname", "lastname", (byte) 1);
+        user = new User(1L, "username", "firstname@mail.com", "password", "firstname", "lastname", (byte) 1);
     }
 
     @Test
@@ -19,6 +19,7 @@ public class UserTest {
         assertEquals("lastname", user.getLastname());
         assertEquals("username", user.getUsername());
         assertEquals("password", user.getPassword());
+        assertEquals("firstname@mail.com", user.getEmail());
         assertEquals(1L, user.getId());
         assertEquals((byte) 1, user.getRole());
     }

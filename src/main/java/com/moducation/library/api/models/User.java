@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.Getter;
@@ -14,6 +15,7 @@ import lombok.Getter;
 @Entity
 @Setter
 @Getter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class User {
@@ -24,6 +26,9 @@ public class User {
 
     @Column(name = "username", nullable = false)
     private String username;
+
+    @Column(name = "email", nullable = false)
+    private String email;
 
     @Column(name = "password", nullable = false)
     private String password;

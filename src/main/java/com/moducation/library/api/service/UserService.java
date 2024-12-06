@@ -27,9 +27,9 @@ public class UserService {
         return this.userRepository.findByUsername(username);
     }
 
-    public void saveUser(User user) {
+    public User saveUser(User user) {
         String encodedPassword = encoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
-        userRepository.save(user);
+        return userRepository.save(user);
     }
 }
