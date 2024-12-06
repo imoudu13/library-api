@@ -12,6 +12,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.Optional;
+
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -62,7 +64,7 @@ class UserControllerTest {
 
     @Test
     void testGetUserFound() throws Exception {
-        User user = User.builder().id(1L).username("testusername").firstname("testuser").build();
+        Optional<User> user = Optional.ofNullable(User.builder().id(1L).username("testusername").firstname("testuser").build());
         when(userService.getUserById(1L)).thenReturn(user);
 
         mockMvc.perform(get("/users/1"))
@@ -74,7 +76,7 @@ class UserControllerTest {
 
     @Test
     void testGetUserNotFound() throws Exception {
-        when(userService.getUserById(1L)).thenReturn(null);
+        when(userService.getUserById(1L)).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/users/1"))
                 .andExpect(status().isNotFound());

@@ -8,6 +8,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.mockito.Mockito.when;
@@ -33,13 +35,14 @@ public class UserServiceTest {
 
     @Test
     public void testGetUserById() {
-        when(userRepository.findByUserId(1L)).thenReturn(user);
+        when(userRepository.findById(1L)).thenReturn(Optional.ofNullable(user));
 
-        User user = userService.getUserById(1L);
+        Optional<User> optionalUser = userService.getUserById(1L);
+        User retrievedUser = optionalUser.get();
 
-        assertEquals(1L, user.getId());
-        assertEquals("testUser", user.getUsername());
-        assertEquals("password123", user.getPassword());
+        assertEquals(1L, retrievedUser.getId());
+        assertEquals("testUser", retrievedUser.getUsername());
+        assertEquals("password123", retrievedUser.getPassword());
     }
 
     @Test

@@ -5,40 +5,38 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.Getter;
 
+import java.sql.Date;
 
 @Entity
-@Setter
 @Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
+public class EventRegister {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Long id;
 
-    @Column(name = "username", nullable = false)
-    private String username;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-    @Column(name = "email", nullable = false)
-    private String email;
+    @ManyToOne
+    @JoinColumn(name = "event_id", nullable = false)
+    private Event event;
 
-    @Column(name = "password", nullable = false)
-    private String password;
-
-    @Column(name = "firstname", nullable = false)
-    private String firstname;
-
-    @Column(name = "lastname", nullable = false)
-    private String lastname;
-
-    @Column(name = "role", nullable = false)
-    private Byte role;
+    @Column(nullable = false)
+    @Temporal(TemporalType.DATE)
+    private Date dateRegistered;
 }

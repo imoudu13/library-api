@@ -8,6 +8,8 @@ import com.moducation.library.api.repositories.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Optional;
+
 @Service
 public class UserService {
     private final UserRepository userRepository;
@@ -19,8 +21,8 @@ public class UserService {
         this.encoder = new BCryptPasswordEncoder();
     }
 
-    public User getUserById(Long id) {
-        return userRepository.findByUserId(id);
+    public Optional<User> getUserById(Long id) {
+        return userRepository.findById(id);
     }
 
     public User getUserByUsername(String username) {

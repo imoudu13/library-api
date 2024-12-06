@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -36,9 +38,9 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<Object> getUser(@PathVariable("id") Long id) {
         try {
-            User user = userService.getUserById(id);
+            Optional<User> user = userService.getUserById(id);
 
-            if (user == null) {
+            if (user.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
 
