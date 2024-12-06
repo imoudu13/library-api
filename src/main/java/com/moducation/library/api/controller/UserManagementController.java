@@ -16,17 +16,29 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
-public class UserController {
+public class UserManagementController {
     private final UserService userService;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserManagementController(UserService userService) {
         this.userService = userService;
     }
 
     @PostMapping("/register")
     public ResponseEntity<Object> registerUser(@RequestBody User user) {
         try {
+            User userByUsername = userService.getUserByUsername(user.getUsername());
+
+            if (userByUsername != null) {
+                return new ResponseEntity<>("User with this username already exists.", HttpStatus.CONFLICT);
+            }
+
+            User userByEmail = userService.getUserByEmail(user.getEmail());
+
+            if (userByEmail != null) {
+                return new ResponseEntity<>("User with this email already exists.",HttpStatus.CONFLICT);
+            }
+
             userService.saveUser(user);
 
             return new ResponseEntity<>(user, HttpStatus.CREATED);
@@ -35,13 +47,13 @@ public class UserController {
         }
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{id}/profile")
     public ResponseEntity<Object> getUser(@PathVariable("id") Long id) {
         try {
             Optional<User> user = userService.getUserById(id);
 
             if (user.isEmpty()) {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>("There is no user with that id in the system.", HttpStatus.NOT_FOUND);
             }
 
             return new ResponseEntity<>(user, HttpStatus.OK);

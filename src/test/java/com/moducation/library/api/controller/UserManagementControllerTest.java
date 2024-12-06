@@ -23,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.hamcrest.Matchers.is;
 
 @ExtendWith(MockitoExtension.class)
-class UserControllerTest {
+class UserManagementControllerTest {
 
     private MockMvc mockMvc;
 
@@ -31,7 +31,7 @@ class UserControllerTest {
     private UserService userService;
 
     @InjectMocks
-    private UserController userController;
+    private UserManagementController userController;
 
     @BeforeEach
     void setUp() {
@@ -67,7 +67,7 @@ class UserControllerTest {
         Optional<User> user = Optional.ofNullable(User.builder().id(1L).username("testusername").firstname("testuser").build());
         when(userService.getUserById(1L)).thenReturn(user);
 
-        mockMvc.perform(get("/users/1"))
+        mockMvc.perform(get("/users/1/profile"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json"))
                 .andExpect(jsonPath("$.firstname", is("testuser")))
@@ -78,7 +78,7 @@ class UserControllerTest {
     void testGetUserNotFound() throws Exception {
         when(userService.getUserById(1L)).thenReturn(Optional.empty());
 
-        mockMvc.perform(get("/users/1"))
+        mockMvc.perform(get("/users/1/profile"))
                 .andExpect(status().isNotFound());
     }
 
@@ -86,7 +86,7 @@ class UserControllerTest {
     void testGetUserFailure() throws Exception {
         when(userService.getUserById(Mockito.anyLong())).thenThrow(new RuntimeException("Error"));
 
-        mockMvc.perform(get("/users/1"))
+        mockMvc.perform(get("/users/1/profile"))
                 .andExpect(status().isInternalServerError());
     }
 }

@@ -22,11 +22,15 @@ public class UserService {
     }
 
     public Optional<User> getUserById(Long id) {
-        return userRepository.findById(id);
+        return this.userRepository.findById(id);
     }
 
     public User getUserByUsername(String username) {
         return this.userRepository.findByUsername(username);
+    }
+
+    public User getUserByEmail(String email) {
+        return this.userRepository.findByEmail(email);
     }
 
     public User saveUser(User user) {
