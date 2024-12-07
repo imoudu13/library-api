@@ -21,8 +21,10 @@ public class UserService {
         this.encoder = new BCryptPasswordEncoder();
     }
 
-    public Optional<User> getUserById(Long id) {
-        return this.userRepository.findById(id);
+    public User getUserById(Long id) {
+        Optional<User> user = userRepository.findById(id);
+
+        return user.orElse(null);
     }
 
     public User getUserByUsername(String username) {
@@ -37,5 +39,9 @@ public class UserService {
         String encodedPassword = encoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
         return userRepository.save(user);
+    }
+
+    public boolean verifyPassword(String rawPassword, String encodedPassword) {
+        return this.encoder.matches(rawPassword, encodedPassword);
     }
 }

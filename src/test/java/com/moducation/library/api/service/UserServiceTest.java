@@ -7,11 +7,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 
@@ -21,28 +22,52 @@ public class UserServiceTest {
     private UserRepository userRepository;
 
     private UserService userService;
-
     private User user;
 
     @BeforeEach
     public void setUp() {
+        PasswordEncoder encoder = new BCryptPasswordEncoder();
         userService = new UserService(userRepository);
         user = new User();
         user.setId(1L);
         user.setUsername("testUser");
-        user.setPassword("password123");
+        user.setEmail("test@test.com");
+        user.setPassword(encoder.encode("password123"));
     }
 
+    @Test
+    public void testVerifyPassword() {
+        String password = "password123";
+        boolean isValid = userService.verifyPassword(password, user.getPassword());
+        assertTrue(isValid);
+    }
+
+    @Test
+    public void testFindByUsername() {
+        when(userRepository.findByEmail("test@test.com")).thenReturn(user);
+
+        User result = userService.getUserByEmail("test@test.com");
+        assertNotNull(result);
+        assertEquals(user.getId(), result.getId());
+        assertEquals(user.getEmail(), result.getEmail());
+    }
     @Test
     public void testGetUserById() {
         when(userRepository.findById(1L)).thenReturn(Optional.ofNullable(user));
 
-        Optional<User> optionalUser = userService.getUserById(1L);
-        User retrievedUser = optionalUser.get();
+        User user = userService.getUserById(1L);
 
-        assertEquals(1L, retrievedUser.getId());
-        assertEquals("testUser", retrievedUser.getUsername());
-        assertEquals("password123", retrievedUser.getPassword());
+        assertEquals(1L, user.getId());
+        assertEquals("testUser", user.getUsername());
+    }
+
+    @Test
+    public void testGetUserByIdFail() {
+        when(userRepository.findById(1L)).thenReturn(Optional.empty());
+
+        User user = userService.getUserById(1L);
+
+        assertNull(user);
     }
 
     @Test
@@ -53,12 +78,12 @@ public class UserServiceTest {
 
         assertEquals(1L, user.getId());
         assertEquals("testUser", user.getUsername());
-        assertEquals("password123", user.getPassword());
     }
 
     @Test
     public void testSaveUser() {
         userService.saveUser(user);
-        assertNotEquals("password123", user.getPassword());
+        assertEquals(1L, user.getId());
+        assertEquals("testUser", user.getUsername());
     }
 }

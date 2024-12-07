@@ -9,10 +9,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
-import java.util.Optional;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -33,13 +33,60 @@ class UserManagementControllerTest {
     @InjectMocks
     private UserManagementController userController;
 
+    String username = "username";
+    String password = "password";
+    String email = "email";
+
+    PasswordEncoder passwordEncoder;
     @BeforeEach
     void setUp() {
+        passwordEncoder = new BCryptPasswordEncoder();
         mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
     }
 
+
     @Test
-    void testRegisterUserSuccess() throws Exception {
+    public void testLoginUserSuccess() throws Exception {
+        User user = User.builder().id(1L).username(username).password(passwordEncoder.encode(password)).build();
+        when(userService.getUserByUsername(username)).thenReturn(user);
+        when(userService.verifyPassword(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
+        mockMvc.perform(post("/users/login")
+                        .contentType("application/json")
+                        .content("{\"username\":\"" + username + "\",\"password\":\"" + password + "\"}"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testLoginUserInvalidPassword() throws Exception {
+        User user = User.builder().id(1L).username(username).password(passwordEncoder.encode(password)).build();
+        when(userService.getUserByUsername(username)).thenReturn(user);
+        when(userService.verifyPassword(Mockito.anyString(), Mockito.anyString())).thenReturn(false);
+        mockMvc.perform(post("/users/login")
+                        .contentType("application/json")
+                        .content("{\"username\":\"" + username + "\",\"password\":\"" + password + "\"}"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void testLoginUserIncorrectUsername() throws Exception {
+        when(userService.getUserByUsername(username)).thenReturn(null);
+        mockMvc.perform(post("/users/login")
+                        .contentType("application/json")
+                        .content("{\"username\":\"" + username + "\",\"password\":\"" + password + "\"}"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testLoginUserException() throws Exception {
+        when(userService.getUserByUsername(username)).thenThrow(new RuntimeException("error"));
+        mockMvc.perform(post("/users/login")
+                        .contentType("application/json")
+                        .content("{\"username\":\"" + username + "\",\"password\":\"" + password + "\"}"))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    public void testRegisterUserSuccess() throws Exception {
         User user = User.builder().id(1L).username("testuser").build();
         when(userService.saveUser(Mockito.any(User.class))).thenReturn(user);
 
@@ -53,7 +100,29 @@ class UserManagementControllerTest {
     }
 
     @Test
-    void testRegisterUserFailure() throws Exception {
+    public void testRegisterUserInvalidUsername() throws Exception {
+        User user = User.builder().id(1L).username(username).build();
+        when(userService.getUserByUsername(username)).thenReturn(user);
+
+        mockMvc.perform(post("/users/register")
+                        .contentType("application/json")
+                        .content("{ \"firstname\": \"testuser\", \"username\": \"username\" }"))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    public void testRegisterUserInvalidEmail() throws Exception {
+        User user = User.builder().id(1L).username(username).email(email).build();
+        when(userService.getUserByEmail(email)).thenReturn(user);
+
+        mockMvc.perform(post("/users/register")
+                        .contentType("application/json")
+                        .content("{ \"firstname\": \"testuser\", \"username\": \"username\", \"email\": \"email\" }"))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    public void testRegisterUserFailure() throws Exception {
         when(userService.saveUser(Mockito.any(User.class))).thenThrow(new RuntimeException("Error"));
 
         mockMvc.perform(post("/users/register")
@@ -63,8 +132,8 @@ class UserManagementControllerTest {
     }
 
     @Test
-    void testGetUserFound() throws Exception {
-        Optional<User> user = Optional.ofNullable(User.builder().id(1L).username("testusername").firstname("testuser").build());
+    public void testGetUserFound() throws Exception {
+        User user = User.builder().id(1L).username("testusername").firstname("testuser").build();
         when(userService.getUserById(1L)).thenReturn(user);
 
         mockMvc.perform(get("/users/1/profile"))
@@ -75,15 +144,15 @@ class UserManagementControllerTest {
     }
 
     @Test
-    void testGetUserNotFound() throws Exception {
-        when(userService.getUserById(1L)).thenReturn(Optional.empty());
+    public void testGetUserNotFound() throws Exception {
+        when(userService.getUserById(1L)).thenReturn(null);
 
         mockMvc.perform(get("/users/1/profile"))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    void testGetUserFailure() throws Exception {
+    public void testGetUserFailure() throws Exception {
         when(userService.getUserById(Mockito.anyLong())).thenThrow(new RuntimeException("Error"));
 
         mockMvc.perform(get("/users/1/profile"))
