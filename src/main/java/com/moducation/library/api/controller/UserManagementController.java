@@ -1,6 +1,6 @@
 package com.moducation.library.api.controller;
 
-import com.moducation.library.api.models.User;
+import com.moducation.library.api.models.LibraryUser;
 import com.moducation.library.api.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,18 +24,18 @@ public class UserManagementController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Object> loginUser(@RequestBody User user) {
+    public ResponseEntity<Object> loginUser(@RequestBody LibraryUser libraryUser) {
         try {
-            User userFromDB = this.userService.getUserByUsername(user.getUsername());
+            LibraryUser libraryUserFromDB = this.userService.getUserByUsername(libraryUser.getUsername());
 
-            if (userFromDB == null) {
+            if (libraryUserFromDB == null) {
                 return new ResponseEntity<>("Incorrect Username.", HttpStatus.NOT_FOUND);
             }
 
-            boolean validPassword = this.userService.verifyPassword(user.getPassword(), userFromDB.getPassword());
+            boolean validPassword = this.userService.verifyPassword(libraryUser.getPassword(), libraryUserFromDB.getPassword());
 
             if (validPassword) {
-                return new ResponseEntity<>(userFromDB, HttpStatus.OK);
+                return new ResponseEntity<>(libraryUserFromDB, HttpStatus.OK);
             }
 
             return new ResponseEntity<>("Incorrect password.", HttpStatus.UNAUTHORIZED);
@@ -45,23 +45,23 @@ public class UserManagementController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Object> registerUser(@RequestBody User user) {
+    public ResponseEntity<Object> registerUser(@RequestBody LibraryUser libraryUser) {
         try {
-            User userByUsername = userService.getUserByUsername(user.getUsername());
+            LibraryUser libraryUserByUsername = userService.getUserByUsername(libraryUser.getUsername());
 
-            if (userByUsername != null) {
+            if (libraryUserByUsername != null) {
                 return new ResponseEntity<>("User with this username already exists.", HttpStatus.CONFLICT);
             }
 
-            User userByEmail = userService.getUserByEmail(user.getEmail());
+            LibraryUser libraryUserByEmail = userService.getUserByEmail(libraryUser.getEmail());
 
-            if (userByEmail != null) {
+            if (libraryUserByEmail != null) {
                 return new ResponseEntity<>("User with this email already exists.", HttpStatus.CONFLICT);
             }
 
-            userService.saveUser(user);
+            userService.saveUser(libraryUser);
 
-            return new ResponseEntity<>(user, HttpStatus.CREATED);
+            return new ResponseEntity<>(libraryUser, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -70,13 +70,13 @@ public class UserManagementController {
     @GetMapping("/{id}/profile")
     public ResponseEntity<Object> getUser(@PathVariable("id") Long id) {
         try {
-            User user = userService.getUserById(id);
+            LibraryUser libraryUser = userService.getUserById(id);
 
-            if (user == null) {
+            if (libraryUser == null) {
                 return new ResponseEntity<>("There is no user with that id in the system.", HttpStatus.NOT_FOUND);
             }
 
-            return new ResponseEntity<>(user, HttpStatus.OK);
+            return new ResponseEntity<>(libraryUser, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }

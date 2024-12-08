@@ -1,6 +1,6 @@
 package com.moducation.library.api.controller;
 
-import com.moducation.library.api.models.User;
+import com.moducation.library.api.models.LibraryUser;
 import com.moducation.library.api.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.hamcrest.Matchers.is;
 
 @ExtendWith(MockitoExtension.class)
-class UserManagementControllerTest {
+class LibraryUserManagementControllerTest {
 
     private MockMvc mockMvc;
 
@@ -47,8 +47,8 @@ class UserManagementControllerTest {
 
     @Test
     public void testLoginUserSuccess() throws Exception {
-        User user = User.builder().id(1L).username(username).password(passwordEncoder.encode(password)).build();
-        when(userService.getUserByUsername(username)).thenReturn(user);
+        LibraryUser libraryUser = LibraryUser.builder().id(1L).username(username).password(passwordEncoder.encode(password)).build();
+        when(userService.getUserByUsername(username)).thenReturn(libraryUser);
         when(userService.verifyPassword(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
         mockMvc.perform(post("/users/login")
                         .contentType("application/json")
@@ -58,8 +58,8 @@ class UserManagementControllerTest {
 
     @Test
     public void testLoginUserInvalidPassword() throws Exception {
-        User user = User.builder().id(1L).username(username).password(passwordEncoder.encode(password)).build();
-        when(userService.getUserByUsername(username)).thenReturn(user);
+        LibraryUser libraryUser = LibraryUser.builder().id(1L).username(username).password(passwordEncoder.encode(password)).build();
+        when(userService.getUserByUsername(username)).thenReturn(libraryUser);
         when(userService.verifyPassword(Mockito.anyString(), Mockito.anyString())).thenReturn(false);
         mockMvc.perform(post("/users/login")
                         .contentType("application/json")
@@ -87,8 +87,8 @@ class UserManagementControllerTest {
 
     @Test
     public void testRegisterUserSuccess() throws Exception {
-        User user = User.builder().id(1L).username("testuser").build();
-        when(userService.saveUser(Mockito.any(User.class))).thenReturn(user);
+        LibraryUser libraryUser = LibraryUser.builder().id(1L).username("testuser").build();
+        when(userService.saveUser(Mockito.any(LibraryUser.class))).thenReturn(libraryUser);
 
         mockMvc.perform(post("/users/register")
                         .contentType("application/json")
@@ -101,8 +101,8 @@ class UserManagementControllerTest {
 
     @Test
     public void testRegisterUserInvalidUsername() throws Exception {
-        User user = User.builder().id(1L).username(username).build();
-        when(userService.getUserByUsername(username)).thenReturn(user);
+        LibraryUser libraryUser = LibraryUser.builder().id(1L).username(username).build();
+        when(userService.getUserByUsername(username)).thenReturn(libraryUser);
 
         mockMvc.perform(post("/users/register")
                         .contentType("application/json")
@@ -112,8 +112,8 @@ class UserManagementControllerTest {
 
     @Test
     public void testRegisterUserInvalidEmail() throws Exception {
-        User user = User.builder().id(1L).username(username).email(email).build();
-        when(userService.getUserByEmail(email)).thenReturn(user);
+        LibraryUser libraryUser = LibraryUser.builder().id(1L).username(username).email(email).build();
+        when(userService.getUserByEmail(email)).thenReturn(libraryUser);
 
         mockMvc.perform(post("/users/register")
                         .contentType("application/json")
@@ -123,7 +123,7 @@ class UserManagementControllerTest {
 
     @Test
     public void testRegisterUserFailure() throws Exception {
-        when(userService.saveUser(Mockito.any(User.class))).thenThrow(new RuntimeException("Error"));
+        when(userService.saveUser(Mockito.any(LibraryUser.class))).thenThrow(new RuntimeException("Error"));
 
         mockMvc.perform(post("/users/register")
                         .contentType("application/json")
@@ -133,8 +133,8 @@ class UserManagementControllerTest {
 
     @Test
     public void testGetUserFound() throws Exception {
-        User user = User.builder().id(1L).username("testusername").firstname("testuser").build();
-        when(userService.getUserById(1L)).thenReturn(user);
+        LibraryUser libraryUser = LibraryUser.builder().id(1L).username("testusername").firstname("testuser").build();
+        when(userService.getUserById(1L)).thenReturn(libraryUser);
 
         mockMvc.perform(get("/users/1/profile"))
                 .andExpect(status().isOk())

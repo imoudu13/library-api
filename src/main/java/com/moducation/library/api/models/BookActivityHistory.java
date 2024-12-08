@@ -33,7 +33,7 @@ public class BookActivityHistory {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private LibraryUser libraryUser;
 
     @ManyToOne
     @JoinColumn(name = "book_id", nullable = false)

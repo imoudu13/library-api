@@ -19,9 +19,9 @@ Design an API for an advanced e-library system. Features to include:
 
 1. **User Management:**
 
-    - `POST /register`: Register a new user.
-    - `POST /login`: Log in a user, returning a token for authentication.
-    - `GET /users/{id}/profile`: Get user profile details.
+    - `POST /register`: Register a new libraryUser.
+    - `POST /login`: Log in a libraryUser, returning a token for authentication.
+    - `GET /users/{id}/profile`: Get libraryUser profile details.
 2. **Book Management:**
 
     - `GET /books`: List all books with optional filters (title, author, genre, availability, rating).
@@ -31,7 +31,7 @@ Design an API for an advanced e-library system. Features to include:
     - `DELETE /books/{id}`: Remove a book from the library (admin/librarian only).
 3. **Book Borrowing and Reservations:**
 
-    - `POST /borrow`: Borrow a book (check availability and update the user's borrow history).
+    - `POST /borrow`: Borrow a book (check availability and update the libraryUser's borrow history).
     - `POST /return`: Return a borrowed book, calculate overdue fines if necessary.
     - `POST /reserve`: Reserve a book if it is currently unavailable (notify when available).
 4. **Book Reviews and Ratings:**
@@ -40,13 +40,13 @@ Design an API for an advanced e-library system. Features to include:
     - `GET /reviews/{book_id}`: List reviews for a specific book.
 5. **Library Fine System:**
 
-    - `GET /users/{id}/fines`: Get a list of overdue fines for a user.
-    - `POST /pay-fine`: Pay a user's overdue fine.
+    - `GET /users/{id}/fines`: Get a list of overdue fines for a libraryUser.
+    - `POST /pay-fine`: Pay a libraryUser's overdue fine.
 6. **Event Management:**
 
     - `GET /events`: List all upcoming library events (author talks, book launches, etc.).
     - `POST /events`: Create a new event (admin only).
-    - `POST /register-event`: Register a user for an upcoming event.
+    - `POST /register-event`: Register a libraryUser for an upcoming event.
     - `GET /events/{id}/registrations`: View all registrations for an event (admin only).
 7. **Library Analytics:**
 
@@ -55,8 +55,8 @@ Design an API for an advanced e-library system. Features to include:
 8. **Notifications:**
 
     - `POST /notifications`: Send notifications to users about upcoming events, overdue books, etc.
-    - `GET /users/{id}/notifications`: List notifications for a specific user.
+    - `GET /users/{id}/notifications`: List notifications for a specific libraryUser.
 
 ---
 
-This more advanced version of the e-library system introduces features like user roles, book reservations, event management, and analytics, requiring a deeper focus on API design, scalability, and authorization handling. Would you like to dive deeper into any specific part of this API design?
+This more advanced version of the e-library system introduces features like libraryUser roles, book reservations, event management, and analytics, requiring a deeper focus on API design, scalability, and authorization handling. Would you like to dive deeper into any specific part of this API design?

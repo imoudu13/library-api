@@ -8,9 +8,8 @@ import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.Getter;
-
+import lombok.Setter;
 
 @Entity
 @Setter
@@ -18,27 +17,27 @@ import lombok.Getter;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
+public class LibraryUser {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Long id;
 
-    @Column(name = "username", nullable = false)
+    @Column(nullable = false, length = 50)
     private String username;
 
-    @Column(name = "email", nullable = false)
+    @Column(nullable = false, unique = true, length = 100)
     private String email;
 
-    @Column(name = "password", nullable = false)
+    @Column(nullable = false)
     private String password;
 
-    @Column(name = "firstname", nullable = false)
+    @Column(nullable = false, length = 50)
     private String firstname;
 
-    @Column(name = "lastname", nullable = false)
+    @Column(nullable = false, length = 50)
     private String lastname;
 
-    @Column(name = "role", nullable = false)
+    @Column(nullable = false)
     private Byte role;
 }

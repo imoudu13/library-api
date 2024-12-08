@@ -30,7 +30,7 @@ public class EventRegister {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private LibraryUser libraryUser;
 
     @ManyToOne
     @JoinColumn(name = "event_id", nullable = false)
