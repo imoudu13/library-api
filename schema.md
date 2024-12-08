@@ -10,7 +10,7 @@ User
 - password (string, salted, hashed, peppered)
 - firstname (string)
 - lastname (string)
-- role (int) //librarian, admin, member (1, 2, 3)
+- role (int) //admin, librarian, member (1, 2, 3)
 
 Book
 - name (string)
