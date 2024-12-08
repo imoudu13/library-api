@@ -22,7 +22,7 @@ public class SecurityConfigTest {
     public void registerEndpoint_ShouldBeAccessibleWithoutAuthentication() {
         // Arrange
         String url = "http://localhost:" + port + "/api/users/register";
-        System.out.println(port);
+
         // Act
         var response = restTemplate.postForEntity(url, null, String.class);
 
