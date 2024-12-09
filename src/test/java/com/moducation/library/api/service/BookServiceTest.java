@@ -130,4 +130,15 @@ public class BookServiceTest {
     public void testFindBooksByFilterFail() {
         assertThrows(IncorrectFilterException.class, () -> bookService.findBooksByFilter("not", "genre"));
     }
+
+    @Test
+    public void testUpdateBook() {
+        when(bookRepository.updateBook(book1.getTitle(), book1.getAuthor(), book1.getGenre(), book1.getAvailability(), book1.getId())).thenReturn(book1);
+
+        Book result = bookService.updateBook(book1);
+        assertEquals("title", result.getTitle());
+        assertEquals("author", result.getAuthor());
+        assertEquals("genre", result.getGenre());
+        assertEquals(7, result.getAvailability());
+    }
 }

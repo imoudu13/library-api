@@ -41,4 +41,8 @@ public class BookService {
             default -> throw new IncorrectFilterException("That filter doesn't exist.");
         };
     }
+
+    public Book updateBook(Book book) {
+        return bookRepository.updateBook(book.getTitle(), book.getAuthor(), book.getGenre(), book.getAvailability(), book.getId());
+    }
 }
