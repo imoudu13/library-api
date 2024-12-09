@@ -3,12 +3,16 @@ package com.moducation.library.api.service;
 import com.moducation.library.api.exceptions.IncorrectFilterException;
 import com.moducation.library.api.models.Book;
 import com.moducation.library.api.repositories.BookRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class BookService {
     private final BookRepository bookRepository;
 
+    @Autowired
     public BookService(BookRepository bookRepository) {
         this.bookRepository = bookRepository;
     }
