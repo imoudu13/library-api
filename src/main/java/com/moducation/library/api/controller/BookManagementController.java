@@ -23,7 +23,7 @@ public class BookManagementController {
         this.bookService = bookService;
     }
 
-    @GetMapping
+    @GetMapping("/get-all-books")
     public ResponseEntity<Object> getBooks() {
         try {
             return new ResponseEntity<>(bookService.findAll(), HttpStatus.OK);
@@ -50,7 +50,7 @@ public class BookManagementController {
         }
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete-books/{id}")
     public ResponseEntity<Object> deleteBookById(@PathVariable Long id) {
         try {
             Book book = bookService.findById(id);
