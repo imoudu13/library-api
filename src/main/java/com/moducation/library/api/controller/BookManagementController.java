@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,7 +24,7 @@ public class BookManagementController {
         this.bookService = bookService;
     }
 
-    @GetMapping("/get-all-books")
+    @GetMapping("/get-books")
     public ResponseEntity<Object> getBooks() {
         try {
             return new ResponseEntity<>(bookService.findAll(), HttpStatus.OK);
@@ -32,7 +33,7 @@ public class BookManagementController {
         }
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/get-book/{id}")
     public ResponseEntity<Object> getBookById(@PathVariable Long id) {
         try {
             return new ResponseEntity<>(bookService.findById(id), HttpStatus.OK);
@@ -50,7 +51,22 @@ public class BookManagementController {
         }
     }
 
-    @DeleteMapping("/delete-books/{id}")
+    @PatchMapping("/update/{id}")
+    public ResponseEntity<Object> updateBook(@RequestBody Book book) {
+        try {
+            Book resultBook = bookService.findById(book.getId());
+
+            if (resultBook == null) {
+                return new ResponseEntity<>("Book not found.", HttpStatus.NOT_FOUND);
+            }
+
+            return new ResponseEntity<>(bookService.updateBook(book), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<Object> deleteBookById(@PathVariable Long id) {
         try {
             Book book = bookService.findById(id);

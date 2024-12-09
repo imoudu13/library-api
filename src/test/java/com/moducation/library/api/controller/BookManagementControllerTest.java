@@ -58,7 +58,7 @@ class BookManagementControllerTest {
         ResponseEntity<Object> response = bookController.getBooks();
 
         // Assertions
-        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
 
         // Verify service interaction
@@ -83,7 +83,7 @@ class BookManagementControllerTest {
         ResponseEntity<Object> response = bookController.getBookById(1L);
 
         // Assertions
-        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
 
         // Verify service interaction
@@ -113,7 +113,7 @@ class BookManagementControllerTest {
         ResponseEntity<Object> response = bookController.addBook(newBook);
 
         // Assertions
-        assertEquals(201, response.getStatusCodeValue());
+        assertEquals(201, response.getStatusCode().value());
         assertNotNull(response.getBody());
 
         // Verify service interaction
@@ -137,7 +137,7 @@ class BookManagementControllerTest {
         ResponseEntity<Object> response = bookController.deleteBookById(1L);
 
         // Assertions
-        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
 
         // Verify service interaction
@@ -154,7 +154,7 @@ class BookManagementControllerTest {
         ResponseEntity<Object> response = bookController.deleteBookById(999L);
 
         // Assertions
-        assertEquals(404, response.getStatusCodeValue());
+        assertEquals(404, response.getStatusCode().value());
         assertEquals("There is no book with that Id.", response.getBody());
 
         // Verify service interaction
@@ -171,7 +171,7 @@ class BookManagementControllerTest {
         ResponseEntity<Object> response = bookController.getBooks();
 
         // Assertions
-        assertEquals(500, response.getStatusCodeValue());
+        assertEquals(500, response.getStatusCode().value());
         assertEquals("Database unavailable", response.getBody());
 
         // Verify service interaction
@@ -187,7 +187,7 @@ class BookManagementControllerTest {
         ResponseEntity<Object> response = bookController.getBookById(1L);
 
         // Assertions
-        assertEquals(500, response.getStatusCodeValue());
+        assertEquals(500, response.getStatusCode().value());
         assertEquals("Error fetching book", response.getBody());
 
         // Verify service interaction
@@ -204,11 +204,42 @@ class BookManagementControllerTest {
         ResponseEntity<Object> response = bookController.addBook(book);
 
         // Assertions
-        assertEquals(500, response.getStatusCodeValue());
+        assertEquals(500, response.getStatusCode().value());
         assertEquals("Error saving book", response.getBody());
 
         // Verify service interaction
         verify(bookService, times(1)).save(book);
+    }
+
+    @Test
+    void testUpdateBook() {
+        Book book = Book.builder().id(1L).title("Book").author("Author").build();
+        when(bookService.findById(1L)).thenReturn(book);
+
+        ResponseEntity<Object> response = bookController.updateBook(book);
+
+        assertEquals(200, response.getStatusCode().value());
+    }
+
+    @Test
+    void testUpdateBook_NotFound() {
+        Book book = Book.builder().id(1L).title("Book").author("Author").build();
+        when(bookService.findById(1L)).thenReturn(null);
+
+        ResponseEntity<Object> response = bookController.updateBook(book);
+
+        assertEquals(404, response.getStatusCode().value());
+        assertEquals("Book not found.", response.getBody());
+    }
+
+    @Test
+    void testUpdateBook_Exception() {
+        Book book = Book.builder().id(1L).title("Book").author("Author").build();
+        when(bookService.findById(1L)).thenThrow(new RuntimeException("Error fetching book"));
+
+        ResponseEntity<Object> response = bookController.updateBook(book);
+        assertEquals(500, response.getStatusCode().value());
+        assertEquals("Error fetching book", response.getBody());
     }
 
     @Test
@@ -223,7 +254,7 @@ class BookManagementControllerTest {
         ResponseEntity<Object> response = bookController.deleteBookById(1L);
 
         // Assertions
-        assertEquals(500, response.getStatusCodeValue());
+        assertEquals(500, response.getStatusCode().value());
         assertEquals("Error deleting book", response.getBody());
 
         // Verify service interaction
@@ -240,7 +271,7 @@ class BookManagementControllerTest {
         ResponseEntity<Object> response = bookController.deleteBookById(999L);
 
         // Assertions
-        assertEquals(404, response.getStatusCodeValue());
+        assertEquals(404, response.getStatusCode().value());
         assertEquals("There is no book with that Id.", response.getBody());
 
         // Verify service interaction
