@@ -18,16 +18,16 @@ Design an API for an advanced e-library system. Features to include:
 
 1. **User Management:**
 
-   - [x] `POST /register`: Register a new libraryUser.
-   - [x] `POST /login`: Log in a libraryUser, returning a token for authentication.
+   - [x] `POST /users/register`: Register a new libraryUser.
+   - [x] `POST /users/login`: Log in a libraryUser, returning a token for authentication.
    - [x] `GET /users/{id}/profile`: Get libraryUser profile details.
 2. **Book Management:**
 
-    - [x] `GET /books/get-all-books`: List all books with optional filters (title, author, genre, availability, rating).
-    - [x] `GET /books/{id}`: Get details of a specific book.
+    - [x] `GET /books/get-books`: List all books with optional filters (title, author, genre, availability, rating).
+    - [x] `GET /books/get-book/{id}`: Get details of a specific book.
     - [x] `POST /books/add`: Add a new book (admin/librarian only).
-    - [x] `PATCH /books/{id}`: Update book details (admin/librarian only).
-    - [x] `DELETE /books/delete-books/{id}`: Remove a book from the library (admin/librarian only).
+    - [x] `PATCH /books/update/{id}`: Update book details (admin/librarian only).
+    - [x] `DELETE /books/delete/{id}`: Remove a book from the library (admin/librarian only).
 3. **Book Borrowing and Reservations:**
 
     - [ ] `POST /borrow`: Borrow a book (check availability and update the libraryUser's borrow history).
