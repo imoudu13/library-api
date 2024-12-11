@@ -1,4 +1,4 @@
-Here’s the enhanced version of the **Advanced E-Library Management System** with just the description and expected endpoints:
+Here is an overview of this api and it's endpoints.
 
 ---
 ### **Advanced E-Library Management System**
@@ -55,6 +55,3 @@ Design an API for an advanced e-library system. Features to include:
 
     - [ ] `POST /notifications`: Send notifications to users about upcoming events, overdue books, etc.
     - [ ] `GET /users/{id}/notifications`: List notifications for a specific libraryUser.
----
-
-This more advanced version of the e-library system introduces features like libraryUser roles, book reservations, event management, and analytics, requiring a deeper focus on API design, scalability, and authorization handling. Would you like to dive deeper into any specific part of this API design?
