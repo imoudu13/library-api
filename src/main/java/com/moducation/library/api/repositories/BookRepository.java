@@ -23,4 +23,11 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     @Modifying
     @Query("UPDATE Book SET title = :title, author = :author, genre = :genre, availability = :availability WHERE id = :id")
     Book updateBook(@Param("title") String title, @Param("author") String author, @Param("genre") String genre, @Param("availability") Integer availability, @Param("id") Long id);
+
+    @Query("SELECT availability FROM Book WHERE id = :id")
+    Integer getAvailability(@Param("id") Long id);
+
+    @Modifying
+    @Query("UPDATE Book SET availability = :newAvailability WHERE id = :id")
+    Integer updateAvailability(@Param("newAvailability") Integer newAvailability, @Param("id") Long id);
 }
