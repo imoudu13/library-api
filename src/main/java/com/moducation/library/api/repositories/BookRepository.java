@@ -29,5 +29,5 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
     @Modifying
     @Query("UPDATE Book SET availability = :newAvailability WHERE id = :id")
-    Integer updateAvailability(@Param("newAvailability") Integer newAvailability, @Param("id") Long id);
+    void updateAvailability(@Param("newAvailability") Integer newAvailability, @Param("id") Long id);
 }

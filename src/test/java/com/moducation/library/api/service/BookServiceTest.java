@@ -141,4 +141,13 @@ public class BookServiceTest {
         assertEquals("genre", result.getGenre());
         assertEquals(7, result.getAvailability());
     }
+
+    @Test
+    public void testBookIsAvailable() {
+        when(bookRepository.getAvailability(1L)).thenReturn(1);
+
+        boolean bookAvailability = bookService.checkIfBookIsAvailable(1L);
+
+        assertTrue(bookAvailability);
+    }
 }

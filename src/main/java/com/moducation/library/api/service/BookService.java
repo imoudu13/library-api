@@ -45,4 +45,10 @@ public class BookService {
     public Book updateBook(Book book) {
         return bookRepository.updateBook(book.getTitle(), book.getAuthor(), book.getGenre(), book.getAvailability(), book.getId());
     }
+
+    public boolean checkIfBookIsAvailable(long bookId) {
+        Integer bookAvailability = bookRepository.getAvailability(bookId);
+
+        return bookAvailability != null && bookAvailability != 0;
+    }
 }
