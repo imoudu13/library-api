@@ -2,7 +2,12 @@ package com.moducation.library.api.service;
 
 import com.moducation.library.api.exceptions.IncorrectFilterException;
 import com.moducation.library.api.models.Book;
+import com.moducation.library.api.models.BookActivityHistory;
+import com.moducation.library.api.models.BookWithdrawal;
+import com.moducation.library.api.models.LibraryUser;
+import com.moducation.library.api.repositories.BookActivityHistoryRepository;
 import com.moducation.library.api.repositories.BookRepository;
+import com.moducation.library.api.repositories.BookWithdrawalRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
 import java.util.List;
@@ -22,17 +28,33 @@ public class BookServiceTest {
     @Mock
     private BookRepository bookRepository;
 
+    @Mock
+    private BookActivityHistoryRepository bookActivityHistoryRepository;
+
+    @Mock
+    private BookWithdrawalRepository bookWithdrawalRepository;
+
     private BookService bookService;
     private Book book1;
     private Book book2;
     private Book book3;
 
+    private LibraryUser libraryUser;
+    private BookActivityHistory bookActivityHistory;
+    private BookWithdrawal bookWithdrawal;
+
     @BeforeEach
     public void setUp() {
-        bookService = new BookService(bookRepository);
+        bookService = new BookService(
+                bookRepository,
+                bookActivityHistoryRepository,
+                bookWithdrawalRepository);
         book1 = new Book(1L, "title", "author", "genre", 7, 3.0f, 30f, 10f);
         book2 = new Book(2L, "title2", "author2", "genre", 9, 3.8f, 38f, 10f);
         book3 = new Book(3L, "not", "author3", "genre", 9, 3.8f, 38f, 10f);
+        bookWithdrawal = BookWithdrawal.builder().id(1L).build();
+        libraryUser = LibraryUser.builder().id(1L).build();
+        bookActivityHistory = BookActivityHistory.builder().id(1L).build();
     }
 
     @Test
@@ -149,5 +171,32 @@ public class BookServiceTest {
         boolean bookAvailability = bookService.checkIfBookIsAvailable(1L);
 
         assertTrue(bookAvailability);
+    }
+
+    @Test
+    public void testBorrowBook() {
+        when(bookRepository.getAvailability(1L)).thenReturn(1);
+
+        bookService.borrowBook(1L);
+
+        verify(bookRepository).updateAvailability(0, 1L);
+    }
+
+    @Test
+    public void testNewActivity() {
+        when(bookActivityHistoryRepository.save(any())).thenReturn(bookActivityHistory);
+
+        BookActivityHistory result = bookService.newActivity(book1, libraryUser, 1);
+
+        assertEquals(bookActivityHistory.getId(), result.getId());
+        verify(bookActivityHistoryRepository).save(any());
+    }
+
+    @Test
+    public void testNewWithdrawal() {
+        when(bookWithdrawalRepository.save(any())).thenReturn(bookWithdrawal);
+
+        BookWithdrawal result = bookService.newWithdrawal(bookActivityHistory, libraryUser);
+        assertEquals(result.getId(), bookWithdrawal.getId());
     }
 }

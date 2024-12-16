@@ -1,7 +1,11 @@
 package com.moducation.library.api.controller;
 
 import com.moducation.library.api.models.Book;
+import com.moducation.library.api.models.BookActivityHistory;
+import com.moducation.library.api.models.BookWithdrawal;
+import com.moducation.library.api.models.LibraryUser;
 import com.moducation.library.api.service.BookService;
+import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +15,8 @@ import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
@@ -277,5 +283,101 @@ class BookManagementControllerTest {
         // Verify service interaction
         verify(bookService, times(1)).findById(999L);
         verify(bookService, never()).delete(anyLong());
+    }
+
+    @Test
+    void testBorrowBook_Success() {
+        // Arrange: Mock book, session, and user
+        Book book = Book.builder().id(1L).title("Test Book").build();
+        LibraryUser user = LibraryUser.builder().username("testUser").firstname("Test USer").build();
+
+        HttpSession session = mock(HttpSession.class);
+        when(session.getAttribute("user")).thenReturn(user);
+        when(bookService.checkIfBookIsAvailable(1L)).thenReturn(true);
+
+        BookActivityHistory activityHistory = BookActivityHistory.builder().type(1).book(book).libraryUser(user).build();
+        when(bookService.newActivity(book, user, 1)).thenReturn(activityHistory);
+
+        BookWithdrawal withdrawal = BookWithdrawal.builder().id(1L).bookActivity(activityHistory).libraryUser(user).build();
+        when(bookService.newWithdrawal(activityHistory, user)).thenReturn(withdrawal);
+
+        // Act: Call the controller method
+        ResponseEntity<Object> response = bookController.borrowBook(book, session);
+
+        // Assert: Validate response and interactions
+        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertEquals(withdrawal, response.getBody());
+
+        verify(bookService, times(1)).checkIfBookIsAvailable(1L);
+        verify(bookService, times(1)).borrowBook(1L);
+        verify(bookService, times(1)).newActivity(book, user, 1);
+        verify(bookService, times(1)).newWithdrawal(activityHistory, user);
+    }
+
+    @Test
+    void testBorrowBook_BookNotAvailable() {
+        // Arrange: Mock book and session
+        Book book = Book.builder().id(1L).title("Test Book").build();
+        HttpSession session = mock(HttpSession.class);
+        LibraryUser user = LibraryUser.builder().username("testUser").firstname("Test USer").build();
+        when(session.getAttribute("user")).thenReturn(user);
+        when(bookService.checkIfBookIsAvailable(1L)).thenReturn(false);
+
+        // Act: Call the controller method
+        ResponseEntity<Object> response = bookController.borrowBook(book, session);
+
+        // Assert: Validate response and interactions
+        assertEquals(400, response.getStatusCode().value());
+        assertEquals("book is not available.", response.getBody());
+
+        verify(bookService, times(1)).checkIfBookIsAvailable(1L);
+        verify(bookService, never()).borrowBook(anyLong());
+        verify(bookService, never()).newActivity(book, user, 1);
+        verify(bookService, never()).newWithdrawal(any(), any());
+    }
+
+    @Test
+    void testBorrowBook_NoUserInSession() {
+        // Arrange: Mock book and session with no user
+        Book book = Book.builder().id(1L).title("Test Book").build();
+        HttpSession session = mock(HttpSession.class);
+        when(session.getAttribute("user")).thenReturn(null);
+
+        // Act: Call the controller method
+        ResponseEntity<Object> response = bookController.borrowBook(book, session);
+
+        // Assert: Validate response and interactions
+        assertEquals(401, response.getStatusCode().value());
+        assertEquals("User not found.", response.getBody()); // Assuming session.getAttribute("user") returns null
+
+        verify(bookService, never()).checkIfBookIsAvailable(anyLong());
+        verify(bookService, never()).borrowBook(anyLong());
+        verify(bookService, never()).newActivity(any(), any(), anyInt());
+        verify(bookService, never()).newWithdrawal(any(), any());
+    }
+
+    @Test
+    void testBorrowBook_Exception() {
+        // Arrange: Mock book and session
+        Book book = Book.builder().id(1L).title("Test Book").build();
+        LibraryUser user = LibraryUser.builder().username("testUser").firstname("Test USer").build();
+        HttpSession session = mock(HttpSession.class);
+        when(session.getAttribute("user")).thenReturn(user);
+
+        // Simulate exception
+        when(bookService.checkIfBookIsAvailable(1L)).thenThrow(new RuntimeException("Unexpected error"));
+
+        // Act: Call the controller method
+        ResponseEntity<Object> response = bookController.borrowBook(book, session);
+
+        // Assert: Validate response and interactions
+        assertEquals(500, response.getStatusCode().value());
+        assertEquals("Unexpected error", response.getBody());
+
+        verify(bookService, times(1)).checkIfBookIsAvailable(1L);
+        verify(bookService, never()).borrowBook(anyLong());
+        verify(bookService, never()).newActivity(any(), any(), anyInt());
+        verify(bookService, never()).newWithdrawal(any(), any());
     }
 }
