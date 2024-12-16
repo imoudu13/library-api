@@ -28,7 +28,9 @@ public class BookService {
     private EntityManager entityManager;
 
     @Autowired
-    public BookService(BookRepository bookRepository, BookActivityHistoryRepository bookActivityHistoryRepository, BookWithdrawalRepository bookWithdrawalRepository) {
+    public BookService(BookRepository bookRepository,
+                       BookActivityHistoryRepository bookActivityHistoryRepository,
+                       BookWithdrawalRepository bookWithdrawalRepository) {
         this.bookWithdrawalRepository = bookWithdrawalRepository;
         this.bookRepository = bookRepository;
         this.bookActivityHistoryRepository = bookActivityHistoryRepository;

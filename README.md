@@ -30,7 +30,7 @@ Design an API for an advanced e-library system. Features to include:
     - [x] `DELETE /books/delete/{id}`: Remove a book from the library (admin/librarian only).
 3. **Book Borrowing and Reservations:**
 
-    - [ ] `POST /borrow`: Borrow a book (check availability and update the libraryUser's borrow history).
+    - [x] `POST /borrow`: Borrow a book (check availability and update the libraryUser's borrow history).
     - [ ] `POST /return`: Return a borrowed book, calculate overdue fines if necessary.
     - [ ] `POST /reserve`: Reserve a book if it is currently unavailable (notify when available).
 4. **Book Reviews and Ratings:**
