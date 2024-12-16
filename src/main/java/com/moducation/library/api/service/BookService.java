@@ -9,6 +9,8 @@ import com.moducation.library.api.repositories.BookActivityHistoryRepository;
 import com.moducation.library.api.repositories.BookRepository;
 import com.moducation.library.api.repositories.BookWithdrawalRepository;
 import com.moducation.library.api.utils.Constants;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,9 @@ public class BookService {
     private final BookRepository bookRepository;
     private final BookActivityHistoryRepository bookActivityHistoryRepository;
     private final BookWithdrawalRepository bookWithdrawalRepository;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Autowired
     public BookService(BookRepository bookRepository, BookActivityHistoryRepository bookActivityHistoryRepository, BookWithdrawalRepository bookWithdrawalRepository) {
@@ -71,7 +76,10 @@ public class BookService {
         bookRepository.updateAvailability(--bookAvailability, bookId);
     }
 
+    @Transactional
     public BookActivityHistory newActivity(Book book, LibraryUser user, Integer type) {
+        user = entityManager.merge(user);
+        book = entityManager.merge(book);
         BookActivityHistory bookActivityHistory = BookActivityHistory.builder()
                 .libraryUser(user)
                 .book(book)
@@ -80,7 +88,10 @@ public class BookService {
         return bookActivityHistoryRepository.save(bookActivityHistory);
     }
 
+    @Transactional
     public BookWithdrawal newWithdrawal(BookActivityHistory bookActivity, LibraryUser user) {
+        user = entityManager.merge(user);
+        bookActivity = entityManager.merge(bookActivity);
         long expectedReturnDateInMillis = System.currentTimeMillis() + Constants.ONE_WEEK_IN_MILLIS;
         Date expectedReturnDate = new Date(expectedReturnDateInMillis);
 

@@ -2,6 +2,7 @@ package com.moducation.library.api.controller;
 
 import com.moducation.library.api.models.LibraryUser;
 import com.moducation.library.api.service.UserService;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +14,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import jakarta.servlet.http.HttpSession;
+import org.springframework.web.bind.annotation.SessionAttribute;
 
+@Log4j2
 @RestController
 @RequestMapping("/users")
 public class UserManagementController {
@@ -36,7 +39,7 @@ public class UserManagementController {
             boolean validPassword = this.userService.verifyPassword(libraryUser.getPassword(), libraryUserFromDB.getPassword());
 
             if (validPassword) {
-                session.setAttribute("user", libraryUser);
+                session.setAttribute("userId", libraryUserFromDB.getId());
                 return new ResponseEntity<>(libraryUserFromDB, HttpStatus.OK);
             }
 
@@ -81,6 +84,15 @@ public class UserManagementController {
             return new ResponseEntity<>(libraryUser, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/check-user")
+    public String checkUser(@SessionAttribute(value = "userId", required = false) String userId) {
+        if (userId != null) {
+            return "UserId in session: " + userId;
+        } else {
+            return "No UserId found in session!";
         }
     }
 }

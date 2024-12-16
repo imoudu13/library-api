@@ -5,6 +5,7 @@ import com.moducation.library.api.models.BookActivityHistory;
 import com.moducation.library.api.models.BookWithdrawal;
 import com.moducation.library.api.models.LibraryUser;
 import com.moducation.library.api.service.BookService;
+import com.moducation.library.api.service.UserService;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
@@ -25,10 +26,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/books")
 public class BookManagementController {
     private final BookService bookService;
-
+    private final UserService userService;
     @Autowired
-    public BookManagementController(BookService bookService) {
+    public BookManagementController(BookService bookService, UserService userService) {
         this.bookService = bookService;
+        this.userService = userService;
     }
 
     @GetMapping("/get-books")
@@ -92,7 +94,14 @@ public class BookManagementController {
     @PostMapping("/borrow")
     public ResponseEntity<Object> borrowBook(@RequestBody Book book, HttpSession session) {
         try {
-            LibraryUser user = (LibraryUser) session.getAttribute("user");
+            Long userId = (Long) session.getAttribute("userId");
+
+            if (userId == null) {
+                log.error("user id is null: " + userId);
+                return new ResponseEntity<>("please login", HttpStatus.UNAUTHORIZED);
+            }
+            
+            LibraryUser user = userService.getUserById(userId);
 
             if (user == null) {
                 return new ResponseEntity<>("User not found.", HttpStatus.UNAUTHORIZED);

@@ -5,6 +5,7 @@ import com.moducation.library.api.models.BookActivityHistory;
 import com.moducation.library.api.models.BookWithdrawal;
 import com.moducation.library.api.models.LibraryUser;
 import com.moducation.library.api.service.BookService;
+import com.moducation.library.api.service.UserService;
 
 import java.util.Arrays;
 
@@ -17,25 +18,28 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.doThrow;
 
 
 class BookManagementControllerTest {
 
     private BookService bookService;
+    private UserService userService;
+
     private BookManagementController bookController;
 
     @BeforeEach
     void setup() {
         bookService = mock(BookService.class);
-        bookController = new BookManagementController(bookService);
+        userService = mock(UserService.class);
+        bookController = new BookManagementController(bookService, userService);
     }
 
     @Test
@@ -292,7 +296,8 @@ class BookManagementControllerTest {
         LibraryUser user = LibraryUser.builder().username("testUser").firstname("Test USer").build();
 
         HttpSession session = mock(HttpSession.class);
-        when(session.getAttribute("user")).thenReturn(user);
+        when(session.getAttribute("userId")).thenReturn(1L);
+        when(userService.getUserById(1L)).thenReturn(user);
         when(bookService.checkIfBookIsAvailable(1L)).thenReturn(true);
 
         BookActivityHistory activityHistory = BookActivityHistory.builder().type(1).book(book).libraryUser(user).build();
@@ -321,7 +326,8 @@ class BookManagementControllerTest {
         Book book = Book.builder().id(1L).title("Test Book").build();
         HttpSession session = mock(HttpSession.class);
         LibraryUser user = LibraryUser.builder().username("testUser").firstname("Test USer").build();
-        when(session.getAttribute("user")).thenReturn(user);
+        when(session.getAttribute("userId")).thenReturn(1L);
+        when(userService.getUserById(1L)).thenReturn(user);
         when(bookService.checkIfBookIsAvailable(1L)).thenReturn(false);
 
         // Act: Call the controller method
@@ -342,14 +348,14 @@ class BookManagementControllerTest {
         // Arrange: Mock book and session with no user
         Book book = Book.builder().id(1L).title("Test Book").build();
         HttpSession session = mock(HttpSession.class);
-        when(session.getAttribute("user")).thenReturn(null);
+        when(session.getAttribute("userId")).thenReturn(null);
 
         // Act: Call the controller method
         ResponseEntity<Object> response = bookController.borrowBook(book, session);
 
         // Assert: Validate response and interactions
         assertEquals(401, response.getStatusCode().value());
-        assertEquals("User not found.", response.getBody()); // Assuming session.getAttribute("user") returns null
+        assertEquals("please login", response.getBody()); // Assuming session.getAttribute("user") returns null
 
         verify(bookService, never()).checkIfBookIsAvailable(anyLong());
         verify(bookService, never()).borrowBook(anyLong());
@@ -363,7 +369,8 @@ class BookManagementControllerTest {
         Book book = Book.builder().id(1L).title("Test Book").build();
         LibraryUser user = LibraryUser.builder().username("testUser").firstname("Test USer").build();
         HttpSession session = mock(HttpSession.class);
-        when(session.getAttribute("user")).thenReturn(user);
+        when(session.getAttribute("userId")).thenReturn(1L);
+        when(userService.getUserById(1L)).thenReturn(user);
 
         // Simulate exception
         when(bookService.checkIfBookIsAvailable(1L)).thenThrow(new RuntimeException("Unexpected error"));
