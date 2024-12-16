@@ -31,7 +31,7 @@ BookReservation
 
 BookActivityHistory
 - id (int, PK)
-- type (1, 2, 3)
+- type (1, 2, 3) //withdraw, return, reserve
 - userId (int, FK)
 - date (Date)
 
