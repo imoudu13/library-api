@@ -36,7 +36,7 @@ public class UserManagementController {
             boolean validPassword = this.userService.verifyPassword(libraryUser.getPassword(), libraryUserFromDB.getPassword());
 
             if (validPassword) {
-                session.setAttribute("userId", libraryUserFromDB.getId());
+                session.setAttribute("user", libraryUser);
                 return new ResponseEntity<>(libraryUserFromDB, HttpStatus.OK);
             }
 
