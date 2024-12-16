@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import jakarta.servlet.http.HttpSession;
 
 @RestController
 @RequestMapping("/users")
@@ -24,7 +25,7 @@ public class UserManagementController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Object> loginUser(@RequestBody LibraryUser libraryUser) {
+    public ResponseEntity<Object> loginUser(@RequestBody LibraryUser libraryUser, HttpSession session) {
         try {
             LibraryUser libraryUserFromDB = this.userService.getUserByUsername(libraryUser.getUsername());
 
@@ -35,6 +36,7 @@ public class UserManagementController {
             boolean validPassword = this.userService.verifyPassword(libraryUser.getPassword(), libraryUserFromDB.getPassword());
 
             if (validPassword) {
+                session.setAttribute("userId", libraryUserFromDB.getId());
                 return new ResponseEntity<>(libraryUserFromDB, HttpStatus.OK);
             }
 
