@@ -31,10 +31,20 @@ public class BookReturn {
 
     @Column(nullable = false)
     @Temporal(TemporalType.DATE)
-    private Date withdrawalDate;
+    private Date returnDate;
 
     @Column(nullable = false)
     private Boolean wasOverdue;
+
+    // book activity reference
+    @ManyToOne
+    @JoinColumn(name = "book_activity_id", nullable = false)
+    private BookActivityHistory bookActivityHistory;
+
+    //book withdrawal reference
+    @ManyToOne
+    @JoinColumn(name = "book_withdrawal_id", nullable = false)
+    private BookWithdrawal bookWithdrawal;
 
     @ManyToOne
     @JoinColumn(name = "book_id", nullable = false)
@@ -46,6 +56,8 @@ public class BookReturn {
 
     @PrePersist
     protected void onCreate() {
-        this.withdrawalDate = new Date(System.currentTimeMillis());
+        long currentTimeInMillis = System.currentTimeMillis();
+        this.wasOverdue = currentTimeInMillis < bookWithdrawal.getExpectedReturnDate().getTime();
+        this.returnDate = new Date(currentTimeInMillis);
     }
 }
