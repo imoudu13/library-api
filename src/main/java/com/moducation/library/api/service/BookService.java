@@ -3,26 +3,32 @@ package com.moducation.library.api.service;
 import com.moducation.library.api.exceptions.IncorrectFilterException;
 import com.moducation.library.api.models.Book;
 import com.moducation.library.api.models.BookActivityHistory;
+import com.moducation.library.api.models.BookReturn;
 import com.moducation.library.api.models.BookWithdrawal;
 import com.moducation.library.api.models.LibraryUser;
 import com.moducation.library.api.repositories.BookActivityHistoryRepository;
 import com.moducation.library.api.repositories.BookRepository;
+import com.moducation.library.api.repositories.BookReturnRepository;
 import com.moducation.library.api.repositories.BookWithdrawalRepository;
-import com.moducation.library.api.utils.Constants;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
 import java.util.List;
 
+import static com.moducation.library.api.utils.Constants.ONE_WEEK_IN_MILLIS;
+
+@Slf4j
 @Service
 public class BookService {
     private final BookRepository bookRepository;
     private final BookActivityHistoryRepository bookActivityHistoryRepository;
     private final BookWithdrawalRepository bookWithdrawalRepository;
+    private final BookReturnRepository bookReturnRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -30,10 +36,24 @@ public class BookService {
     @Autowired
     public BookService(BookRepository bookRepository,
                        BookActivityHistoryRepository bookActivityHistoryRepository,
-                       BookWithdrawalRepository bookWithdrawalRepository) {
+                       BookWithdrawalRepository bookWithdrawalRepository,
+                       BookReturnRepository bookReturnRepository) {
+        this.bookReturnRepository = bookReturnRepository;
         this.bookWithdrawalRepository = bookWithdrawalRepository;
         this.bookRepository = bookRepository;
         this.bookActivityHistoryRepository = bookActivityHistoryRepository;
+    }
+
+    public BookService(BookRepository bookRepository,
+                       BookActivityHistoryRepository bookActivityHistoryRepository,
+                       BookWithdrawalRepository bookWithdrawalRepository,
+                       BookReturnRepository bookReturnRepository,
+                       EntityManager entityManager) {
+        this.bookReturnRepository = bookReturnRepository;
+        this.bookWithdrawalRepository = bookWithdrawalRepository;
+        this.bookRepository = bookRepository;
+        this.bookActivityHistoryRepository = bookActivityHistoryRepository;
+        this.entityManager = entityManager;
     }
 
     public Book save(Book book) {
@@ -94,7 +114,7 @@ public class BookService {
     public BookWithdrawal newWithdrawal(BookActivityHistory bookActivity, LibraryUser user) {
         user = entityManager.merge(user);
         bookActivity = entityManager.merge(bookActivity);
-        long expectedReturnDateInMillis = System.currentTimeMillis() + Constants.ONE_WEEK_IN_MILLIS;
+        long expectedReturnDateInMillis = System.currentTimeMillis() + ONE_WEEK_IN_MILLIS;
         Date expectedReturnDate = new Date(expectedReturnDateInMillis);
 
         BookWithdrawal bookWithdrawal = BookWithdrawal.builder()
@@ -103,5 +123,34 @@ public class BookService {
                 .expectedReturnDate(expectedReturnDate).build();
 
         return bookWithdrawalRepository.save(bookWithdrawal);
+    }
+
+    @Transactional
+    public void returnBook(long bookId) {
+        int bookAvailability = bookRepository.getAvailability(bookId);
+        bookAvailability++;
+        bookRepository.updateAvailability(bookAvailability, bookId);
+    }
+
+    @Transactional
+    public BookReturn newReturn(BookActivityHistory bookActivity, LibraryUser user, Book book, BookWithdrawal bookWithdrawal) {
+        user = entityManager.merge(user);
+        book = entityManager.merge(book);
+
+        BookReturn bookReturn = BookReturn.builder()
+                .libraryUser(user)
+                .book(book)
+                .bookActivityHistory(bookActivity)
+                .bookWithdrawal(bookWithdrawal).build();
+
+        return bookReturnRepository.save(bookReturn);
+    }
+
+    public BookActivityHistory getBookActivityHistory(Integer type, LibraryUser libraryUser, Book book) {
+        return bookActivityHistoryRepository.findBookActivityForWithdrawal(type, libraryUser, book);
+    }
+
+    public BookWithdrawal getBookWithdrawal(BookActivityHistory bookActivityHistory, LibraryUser libraryUser) {
+        return bookWithdrawalRepository.findByBookActivityHistoryAndLibraryUser(bookActivityHistory, libraryUser);
     }
 }
