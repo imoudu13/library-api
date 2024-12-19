@@ -2,6 +2,7 @@ package com.moducation.library.api.controller;
 
 import com.moducation.library.api.models.Book;
 import com.moducation.library.api.models.BookActivityHistory;
+import com.moducation.library.api.models.BookReturn;
 import com.moducation.library.api.models.BookWithdrawal;
 import com.moducation.library.api.models.LibraryUser;
 import com.moducation.library.api.service.BookService;
@@ -21,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static com.moducation.library.api.utils.Constants.WITHDRAWAL_CODE;
+import static com.moducation.library.api.utils.Constants.RETURN_CODE;
 @Slf4j
 @RestController
 @RequestMapping("/books")
@@ -126,7 +129,35 @@ public class BookManagementController {
         }
     }
 
-    // return
+    @PostMapping("/return")
+    public ResponseEntity<Object> returnBook(@RequestBody Book book, HttpSession session) {
+        try {
+            Long userId = (Long) session.getAttribute("userId");
 
-    // reserve
+            if (userId == null) {
+                return new ResponseEntity<>("user id is null.", HttpStatus.UNAUTHORIZED);
+            }
+
+            LibraryUser user = userService.getUserById(userId);
+
+            if (user == null) {
+                return new ResponseEntity<>("User not found.", HttpStatus.UNAUTHORIZED);
+            }
+
+            bookService.returnBook(book.getId());
+
+            BookActivityHistory bookActivityHistory = bookService.newActivity(book, user, RETURN_CODE);
+
+            BookActivityHistory bookActivityHistoryForWithdrawal = bookService.getBookActivityHistory(WITHDRAWAL_CODE, user, book);
+
+            BookWithdrawal bookWithdrawal = bookService.getBookWithdrawal(bookActivityHistoryForWithdrawal, user);
+
+            BookReturn bookReturn = bookService.newReturn(bookActivityHistory, user, book, bookWithdrawal);
+
+            return new ResponseEntity<>(bookReturn, HttpStatus.OK);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
