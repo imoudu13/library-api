@@ -24,6 +24,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static com.moducation.library.api.utils.Constants.WITHDRAWAL_CODE;
 import static com.moducation.library.api.utils.Constants.RETURN_CODE;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+
 @Slf4j
 @RestController
 @RequestMapping("/books")
@@ -39,18 +44,18 @@ public class BookManagementController {
     @GetMapping("/get-books")
     public ResponseEntity<Object> getBooks() {
         try {
-            return new ResponseEntity<>(bookService.findAll(), HttpStatus.OK);
+            return new ResponseEntity<>(bookService.findAll(), OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(), INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("/get-book/{id}")
     public ResponseEntity<Object> getBookById(@PathVariable Long id) {
         try {
-            return new ResponseEntity<>(bookService.findById(id), HttpStatus.OK);
+            return new ResponseEntity<>(bookService.findById(id), OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(), INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -59,7 +64,7 @@ public class BookManagementController {
         try {
             return new ResponseEntity<>(bookService.save(book), HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(), INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -72,9 +77,9 @@ public class BookManagementController {
                 return new ResponseEntity<>("Book not found.", HttpStatus.NOT_FOUND);
             }
 
-            return new ResponseEntity<>(bookService.updateBook(book), HttpStatus.OK);
+            return new ResponseEntity<>(bookService.updateBook(book), OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(), INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -88,9 +93,9 @@ public class BookManagementController {
 
             bookService.delete(id);
 
-            return new ResponseEntity<>(book, HttpStatus.OK);
+            return new ResponseEntity<>(book, OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(), INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -101,19 +106,19 @@ public class BookManagementController {
 
             if (userId == null) {
                 log.error("user id is null: " + userId);
-                return new ResponseEntity<>("please login", HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<>("please login", UNAUTHORIZED);
             }
             
             LibraryUser user = userService.getUserById(userId);
 
             if (user == null) {
-                return new ResponseEntity<>("User not found.", HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<>("User not found.", UNAUTHORIZED);
             }
 
             boolean bookIsAvailable = bookService.checkIfBookIsAvailable(book.getId());
 
             if (!bookIsAvailable) {
-                return new ResponseEntity<>("book is not available.", HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>("book is not available.", BAD_REQUEST);
             }
 
             bookService.borrowBook(book.getId());
@@ -122,10 +127,10 @@ public class BookManagementController {
 
             BookWithdrawal withdrawal = bookService.newWithdrawal(bookActivityHistory, user);
 
-            return new ResponseEntity<>(withdrawal, HttpStatus.OK);
+            return new ResponseEntity<>(withdrawal, OK);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(), INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -135,13 +140,13 @@ public class BookManagementController {
             Long userId = (Long) session.getAttribute("userId");
 
             if (userId == null) {
-                return new ResponseEntity<>("user id is null.", HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<>("user id is null.", UNAUTHORIZED);
             }
 
             LibraryUser user = userService.getUserById(userId);
 
             if (user == null) {
-                return new ResponseEntity<>("User not found.", HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<>("User not found.", UNAUTHORIZED);
             }
 
             bookService.returnBook(book.getId());
@@ -154,10 +159,10 @@ public class BookManagementController {
 
             BookReturn bookReturn = bookService.newReturn(bookActivityHistory, user, book, bookWithdrawal);
 
-            return new ResponseEntity<>(bookReturn, HttpStatus.OK);
+            return new ResponseEntity<>(bookReturn, OK);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(), INTERNAL_SERVER_ERROR);
         }
     }
 }
